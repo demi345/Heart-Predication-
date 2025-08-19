@@ -16,16 +16,8 @@ st.set_page_config(
 
 # --- Model & Prediction Functions ---
 # Define these at the top to avoid NameError
-import os
-
 algonames = ['Decision Tree Classifier', 'SVC', 'Random Forest Classifier']
-# Get the directory where this script is located
-script_dir = os.path.dirname(os.path.abspath(__file__))
-modelnames = [
-    os.path.join(script_dir, 'DecisionTreeClassifier.pkl'),
-    os.path.join(script_dir, 'SVC.pkl'),
-    os.path.join(script_dir, 'RandomForestClassifier.pkl')
-]
+modelnames = ['DecisionTreeClassifier.pkl', 'SVC.pkl', 'RandomForestClassifier.pkl']
 
 @st.cache_data
 def predict_heart_disease(data):
@@ -36,7 +28,7 @@ def predict_heart_disease(data):
             with open(modelname, 'rb') as file:
                 model = pickle.load(file)
                 # Handle SVC which may not have predict_proba
-                if 'SVC.pkl' in modelname and not hasattr(model, 'predict_proba'):
+                if modelname == 'SVC.pkl' and not hasattr(model, 'predict_proba'):
                     # Use predict() and create a placeholder for probability
                     prediction = model.predict(data)
                     # Create a structure that mimics predict_proba output
@@ -88,7 +80,8 @@ def preprocess_data(df):
             
     return df_encoded[training_columns]
 
-# --- Streamlit App Layout ---
+# --- UI Layout ---
+
 # Sidebar
 with st.sidebar:
     st.header("About")
@@ -180,18 +173,18 @@ with tab2:
 
             # Get predictions for the processed data
             all_models_predictions = []
-            for model_path in modelnames:
+            for model_name in modelnames:
                 try:
-                    with open(model_path, 'rb') as file:
+                    with open(model_name, 'rb') as file:
                         model = pickle.load(file)
                         if hasattr(model, 'predict'):
                             preds = model.predict(processed_bulk_df)
                             all_models_predictions.append(preds)
                         else:
-                            st.error(f"Model {model_path} does not have a 'predict' method.")
+                            st.error(f"Model {model_name} does not have a 'predict' method.")
                             all_models_predictions.append(np.array(['Error'] * len(processed_bulk_df)))
                 except pickle.UnpicklingError:
-                    st.error(f"Error loading '{model_path}'. This file is not a valid pickle file. Please check or regenerate it.")
+                    st.error(f"Error loading '{model_name}'. This file is not a valid pickle file. Please check or regenerate it.")
                     # Add placeholder predictions to avoid crashing the app
                     all_models_predictions.append(np.array(['Error'] * len(processed_bulk_df)))
                     continue

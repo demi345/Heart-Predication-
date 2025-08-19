@@ -33,7 +33,7 @@ def predict_heart_disease(data):
                     prediction = model.predict(data)
                     # Create a structure that mimics predict_proba output
                     proba_output = np.zeros((1, 2))
-                    proba_output[0, prediction[0]] = 1.0 
+                    proba_output[0, prediction[0]] = 1.0
                     predictions.append(proba_output)
                 else:
                     prediction_proba = model.predict_proba(data)
@@ -77,7 +77,7 @@ def preprocess_data(df):
     for col in training_columns:
         if col not in df_encoded.columns:
             df_encoded[col] = 0
-            
+
     return df_encoded[training_columns]
 
 # --- UI Layout ---
@@ -131,7 +131,7 @@ with tab1:
         # --- Preprocessing ---
         input_data_dict = {'Age': age, 'Sex': sex, 'ChestPainType': chest_pain, 'RestingBP': trestbps, 'Cholesterol': chol, 'FastingBS': fasting_bs, 'RestingECG': restecg, 'MaxHR': thalach, 'ExerciseAngina': exercise_angina, 'ST_Slope': slope}
         input_df = pd.DataFrame([input_data_dict])
-        
+
         # Use the preprocessing function
         input_data = preprocess_data(input_df)
 
@@ -143,7 +143,7 @@ with tab1:
                 prediction = np.argmax(result_probas[i])
                 # Check if confidence is meaningful (not 0 or 100 from our placeholder)
                 is_svc_without_proba = (modelnames[i] == 'SVC.pkl' and (result_probas[i][0][prediction] == 1.0 or result_probas[i][0][prediction] == 0.0))
-                
+
                 st.markdown(f"**{algonames[i]}**")
 
                 if is_svc_without_proba:
@@ -188,7 +188,7 @@ with tab2:
                     # Add placeholder predictions to avoid crashing the app
                     all_models_predictions.append(np.array(['Error'] * len(processed_bulk_df)))
                     continue
-            
+
             # Create a results dataframe
             results_df = bulk_df.copy()
             for i, name in enumerate(algonames):
@@ -221,13 +221,13 @@ with tab3:
     st.markdown("Static analysis of the dataset features.")
 
     try:
-        df_eda = pd.read_csv('../datasets/heart.csv')
+        df_eda = pd.read_csv(r"C:\Users\dabadir\Desktop\.py\dataset\heart.csv")
 
         # --- Age Distribution ---
         st.subheader("Age Distribution")
         fig_age, ax_age = plt.subplots(figsize=(6, 4))
         sns.histplot(df_eda['Age'], kde=True, ax=ax_age, color='skyblue')
-        
+
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             st.pyplot(fig_age)
@@ -237,7 +237,7 @@ with tab3:
         fig_count, ax_count = plt.subplots(figsize=(6, 4))
         sns.countplot(x='HeartDisease', data=df_eda, ax=ax_count, palette='pastel')
         ax_count.set_xticklabels(['No Heart Disease', 'Heart Disease'])
-        
+
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             st.pyplot(fig_count)
@@ -251,7 +251,7 @@ with tab3:
         st.pyplot(fig_corr)
 
     except FileNotFoundError:
-        st.error("Dataset file ('../datasets/heart.csv') not found for EDA.")
+        st.error("Dataset file ('datasets/heart.csv') not found for EDA.")
     except Exception as e:
         st.error(f"An error occurred during EDA: {e}")
 
@@ -262,7 +262,7 @@ with tab4:
     # This data is static and not linked to your notebook's output.
     data = {"Decision Tree Classifier":  0.788043, "SVC": 0.717391, "RandomForestClassifier":0.869565 }
     df_acc = pd.DataFrame(list(data.items()), columns=['Model', 'Accuracy'])
-    
+
     # Define custom colors for the models
     color_map = {
         "Decision Tree Classifier": "salmon",
@@ -271,11 +271,11 @@ with tab4:
     }
 
     fig = px.bar(
-        df_acc, 
-        y='Accuracy', 
-        x='Model', 
-        title="Model Accuracies", 
-        color='Model', 
+        df_acc,
+        y='Accuracy',
+        x='Model',
+        title="Model Accuracies",
+        color='Model',
         text_auto='.3f',
         color_discrete_map=color_map  # Apply the custom color map
     )
@@ -286,15 +286,15 @@ with tab5:
     st.header("About the Dataset")
     st.markdown("""
     This application uses the **Heart Failure Prediction Dataset**. This dataset combines five major heart disease datasets and contains 11 common features.
-    
+
     **Source:** [Kaggle - Heart Failure Prediction](https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction)
     """)
-    
+
     st.subheader("Dataset Preview")
     try:
-        df_info = pd.read_csv('../datasets/heart.csv')
+        df_info = pd.read_csv(r"C:\Users\dabadir\Desktop\.py\dataset\heart.csv")
         st.dataframe(df_info.head())
-        
+
         st.subheader("Dataset Columns and Data Types")
         from io import StringIO
         buffer = StringIO()
@@ -304,8 +304,7 @@ with tab5:
 
         st.subheader("Numerical Summary")
         st.write(df_info.describe())
-
     except FileNotFoundError:
-        st.error("Dataset file ('../datasets/heart.csv') not found. Cannot display dataset information.")
+        st.error("Dataset file ('datasets/heart.csv') not found. Cannot display dataset information.")
     except Exception as e:
-        st.error(f"An error occurred while loading the dataset information: {e}")
+        st.error(f"An error occurred during dataset info: {e}")
